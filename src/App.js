@@ -127,28 +127,33 @@ export default class App {
 
             const categories = await this.#firefly.getCategories();
             const budgets = await this.#firefly.getBudgets();
+            const bills = await this.#firefly.getBills();
 
             const allLists = new Map();
 
             allLists.set('categories', Array.from(categories.keys()));
             allLists.set('budgets', Array.from(budgets.keys()));
+            allLists.set('bills', Array.from(bills.keys()));
 
-
-            const {prompt, category, budget, response} = await this.#openAi.classify(allLists, destinationName, description)
+            const {prompt, category, budget, bill, response} = await this.#openAi.classify(allLists, destinationName, description)
 
             const newData = Object.assign({}, job.data);
             newData.category = category;
             newData.budget = budget;
+            if (bill !== "none") {
+                newData.bill = bill;
+            }
             newData.prompt = prompt;
             newData.response = response;
 
             this.#jobList.updateJobData(job.id, newData);
 
-            if (category || budget) {
+            if (category || budget || bill !== "none") {
                 const category_id = categories.has(category) ? categories.get(category) : -1;
                 const budget_id = budgets.has(budget) ? budgets.get(budget) : -1;
+                const bill_id = bills.has(bill) ? bills.get(bill).id : -1;
 
-                await this.#firefly.setCategoryAndBudget(req.body.content.id, req.body.content.transactions, category_id, budget_id);
+                await this.#firefly.setCategoryBudgetAndBill(req.body.content.id, req.body.content.transactions, category_id, budget_id, bill_id);
             }
 
             this.#jobList.setJobFinished(job.id);

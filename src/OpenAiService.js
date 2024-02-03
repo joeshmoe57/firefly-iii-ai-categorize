@@ -15,13 +15,14 @@ export default class OpenAiService {
         this.#openAi = new OpenAIApi(configuration)
     }
 
-    async classify(allLists, destinationName, description) {
+    async classify(allLists, destinationName, description, amount) {
         try {
             const prompt = `Categorize this transaction from my bank account with the following 
-        description ${description} and the following destination ${destinationName}`;
+        description ${description}, the transaction amount ${amount} and the following destination ${destinationName}`;
 
             const categories = allLists.get('categories');
             const budgets = allLists.get('budgets');
+            const bills = allLists.get('bills');
 
             const response = await this.#openAi.createChatCompletion({
                 model: this.#model,
@@ -29,7 +30,7 @@ export default class OpenAiService {
                 functions: [
                     {
                         "name": "classification",
-                        "description": "Classify a financial transaction into a category and budget, use only values from the lists provided.",
+                        "description": "Classify a financial transaction into a category, budget and if possible a bill, use only values from the lists provided.",
                         "parameters": {
                             "type": "object",
                             "properties": {
@@ -45,9 +46,19 @@ export default class OpenAiService {
                                     Use only these values: ${budgets.join(", ")}.
                                     Use none if no budget applies.
                                     `
+                                },
+                                "bill": {
+                                    "type": "string",
+                                    "description": `The bill to classify the transaction into.
+                                    Use only these values: ${bills.join(", ")}.
+                                    The properties amount_min and amount_max should be equal or in_between the amount of the transaction.
+                                    For better classification, you can use the property notes to get more information of the bill.
+                                    If you found a bill that matches the transaction, use the name of the bill.
+                                    Use none if no bill applies.
+                                   `
                                 }
                             },
-                            "required": ["category", "budget"]
+                            "required": ["category", "budget", "bill"]
                         }
                     }
 
@@ -69,7 +80,8 @@ export default class OpenAiService {
                 prompt,
                 response: function_call.arguments,
                 category: json.category,
-                budget: json.budget
+                budget: json.budget,
+                bill: json.bill
             }
 
         } catch (error) {

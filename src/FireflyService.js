@@ -71,13 +71,19 @@ export default class FireflyService {
 
         const bills = new Map();
         data.data.forEach(bill => {
-            bills.set(bill.attributes.name, bill.id);
+            bills.set(bill.attributes.name, {
+                id: bill.id,
+                amount_min: bill.attributes.amount_min,
+                amount_max: bill.attributes.amount_max,
+                notes: bill.attributes.notes,
+                active: bill.attributes.active,
+            });
         });
 
         return bills;
     }
 
-    async setCategoryAndBudget(transactionId, transactions, categoryId, budgetId) {
+    async setCategoryBudgetAndBill(transactionId, transactions, categoryId, budgetId, billId) {
         const tag = getConfigVariable("FIREFLY_TAG", "AI categorized");
 
         const body = {
@@ -106,6 +112,10 @@ export default class FireflyService {
                 object.budget_id = budgetId;
             }
 
+            if (billId !== -1) {
+                object.bill_id = billId;
+            }
+
             body.transactions.push(object);
         })
 
@@ -125,6 +135,7 @@ export default class FireflyService {
         await response.json();
         console.info("Transaction updated")
     }
+
 }
 
 class FireflyException extends Error {
