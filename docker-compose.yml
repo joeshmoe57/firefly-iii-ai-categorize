@@ -1,0 +1,13 @@
+services:
+  categorizer:
+    #image: ghcr.io/bahuma20/firefly-iii-ai-categorize:latest
+    build: ./
+    restart: always
+    ports:
+      - "3100:3000"
+    environment:
+      FIREFLY_URL: "http://192.168.86.31:82"
+      FIREFLY_PERSONAL_TOKEN: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxMDYiLCJqdGkiOiIwOThiM2ZjYjhhMTUzYWU1MjEzOTBhMDA1NGFlMjVmNjYzNjU0NGIyMGYwMDUxZDBlMGRmMjQ2ODI1ZmRhMDQ2ZDgyMjliYmRhZDJjYjMzMyIsImlhdCI6MTcyOTIxMjMyMi44NTQ0NTgsIm5iZiI6MTcyOTIxMjMyMi44NTQ0NiwiZXhwIjoxNzYwNzQ4MzIyLjY4NTY3Nywic3ViIjoiMSIsInNjb3BlcyI6W119.RYftasau0L-I8yjUW5pAu2r9ZGt67y49aDwt2wRpUFkOiWwoqWaZC1u_neOwjYNBWsWHYhrUAinXJlmTzt_oOZcknEm4-7pnDkA3DsasIiCiln7r-MfmmzuUcr2BWOABpP6_1iw4lT-6D7MQucxgGUWnowU4qAhHhlQRzD3D7pxQi8DxvJsejrVofH1wPG4CqZODIaU_lbvpmYCAAYwtEbFND4DOJeNA4JQpCKpNa581tdhPPFJfdYpllcyuxOQxEuZ1JG6SknNutJu96f0z4ieQv11hNa2AhxVMTP9vh3_MXtbSCrllAKM1rHh0Bwfk2H5FcE1HhMUPNGOKngwRfHxAyqyemiRDp35jKqPlBpU6GM8_TQ6HuFWsoaUqvWKA8F1Sn7m25B7iPdtwXphORJJc8B6E3kaFhTGiAksKsNrQKPvuixSHvy5GeHRO8f2OGt3nYtlSy_-1RcFTBlwcjJQWci0Nj72KxR2IQ2uYac-wio1ilpGpfu0OCJMRQP3iP2Sr9nQ4faOgx73W1Q9InkE2c529pWAACOpGP7I_I3RQ5rqMljqyNkt2rsDG2wUxpBS4KPtZMJ6gTpddoyt7Pr9Hq_4oRNSJbuJDeziuIZdybTzhpBciOq_9wCs7lWvUm3WZGfS4kQl572EiHLEVVJmddsHSN2RxDw_mlKw5lhg"
+      OPENAI_API_KEY: "sk-abc123"
+      BASE_URL: "http://192.168.86.31:11434/v1/"
+      ENABLE_UI: true

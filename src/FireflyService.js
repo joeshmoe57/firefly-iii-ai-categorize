@@ -14,17 +14,21 @@ export default class FireflyService {
     }
 
     async getCategories() {
+	console.log("Getting categories");
         const response = await fetch(`${this.#BASE_URL}/api/v1/categories`, {
             headers: {
-                Authorization: `Bearer ${this.#PERSONAL_TOKEN}`,
+                Authorization: `Bearer ${this.#PERSONAL_TOKEN}`
             }
         });
+	console.log("Cat resp: " + response);
 
         if (!response.ok) {
+            console.error("Not okay: " + response);
             throw new FireflyException(response.status, response, await response.text())
         }
 
         const data = await response.json();
+	console.log("Cat data: " + data);
 
         const categories = new Map();
         data.data.forEach(category => {
@@ -36,6 +40,7 @@ export default class FireflyService {
 
 
     async getBudgets() {
+	console.log("Getting budgets");
         const response = await fetch(`${this.#BASE_URL}/api/v1/budgets`, {
             headers: {
                 Authorization: `Bearer ${this.#PERSONAL_TOKEN}`,
@@ -57,6 +62,7 @@ export default class FireflyService {
     }
 
     async getBills()    {
+	console.log("Getting bills");
         const response = await fetch(`${this.#BASE_URL}/api/v1/bills`, {
             headers: {
                 Authorization: `Bearer ${this.#PERSONAL_TOKEN}`,

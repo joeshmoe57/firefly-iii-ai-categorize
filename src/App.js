@@ -74,6 +74,7 @@ export default class App {
             this.#handleWebhook(req, res);
             res.send("Queued");
         } catch (e) {
+	    console.log("Caught: " + e);
             console.error(e)
             res.status(400).send(e.message);
         }
@@ -81,38 +82,49 @@ export default class App {
 
     #handleWebhook(req, res) {
         // TODO: validate auth
+	console.info("handling");
 
-        if (req.body?.trigger !== "STORE_TRANSACTION") {
-            throw new WebhookException("trigger is not STORE_TRANSACTION. Request will not be processed");
-        }
+        //if (req.body?.trigger !== "STORE_TRANSACTION") {
+	    //console.error('Not store');
+            //throw new WebhookException("trigger is not STORE_TRANSACTION. Request will not be processed");
+        //}
 
         if (req.body?.response !== "TRANSACTIONS") {
+	    console.error('Not transaction');
             throw new WebhookException("trigger is not TRANSACTION. Request will not be processed");
         }
 
         if (!req.body?.content?.id) {
+	    console.error('No id');
             throw new WebhookException("Missing content.id");
         }
 
         if (req.body?.content?.transactions?.length === 0) {
+	    console.error('No transactions');
             throw new WebhookException("No transactions are available in content.transactions");
         }
 
         if (req.body.content.transactions[0].type !== "withdrawal") {
+	    console.error('Not withdrawal');
             throw new WebhookException("content.transactions[0].type has to be 'withdrawal'. Transaction will be ignored.");
         }
 
         if (req.body.content.transactions[0].category_id !== null) {
+	    console.error('Category set');
             throw new WebhookException("content.transactions[0].category_id is already set. Transaction will be ignored.");
         }
 
         if (!req.body.content.transactions[0].description) {
+	    console.error('Missing description');
             throw new WebhookException("Missing content.transactions[0].description");
         }
 
         if (!req.body.content.transactions[0].destination_name) {
+	    console.error('Missing dest');
             throw new WebhookException("Missing content.transactions[0].destination_name");
         }
+
+	console.log("No exception thrown");
 
         const destinationName = req.body.content.transactions[0].destination_name;
         const description = req.body.content.transactions[0].description
