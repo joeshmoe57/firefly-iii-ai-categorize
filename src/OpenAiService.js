@@ -3,23 +3,23 @@ import {getConfigVariable} from "./util.js";
 
 export default class OpenAiService {
     #openAi;
-    #model = "llama3.1";
+    #model = "llama";
 
     constructor() {
         const apiKey = getConfigVariable("OPENAI_API_KEY")
-	const baseUrl = getConfigVariable("BASE_URL")
+	    const baseUrl = getConfigVariable("BASE_URL")
 
         this.#openAi = new OpenAI({
             apiKey,
-	    baseURL: baseUrl
+	        baseURL: baseUrl
         })
     }
 
     async classify(allLists, destinationName, description, amount) {
         try {
-	    console.log("Classifying");
+	        console.log("Classifying");
             const categories = allLists.get('categories');
-	    const prompt = `You are to provide a category for the following financial transaction. Here is the set of allowable categories in a comma separated list: ${categories.join(", ")}. Only respond with an item from the list and nothing else. The transaction to classify has a description of ${description} and a destination account of ${destinationName}`
+	        const prompt = `You are to provide a category for the following financial transaction. Here is the set of allowable categories in a comma separated list: ${categories.join(", ")}. Only respond with an item from the list and nothing else. The transaction to classify has a description of ${description} and a destination account of ${destinationName}`
             //const prompt = "Categorize this transaction from my bank account with the following description ${description}, the transaction amount ${amount} and the following destination ${destinationName}";
 
             const budgets = allLists.get('budgets');
