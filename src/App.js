@@ -82,12 +82,11 @@ export default class App {
 
     #handleWebhook(req, res) {
         // TODO: validate auth
-	console.info("handling");
 
-        //if (req.body?.trigger !== "STORE_TRANSACTION") {
-	    //console.error('Not store');
-            //throw new WebhookException("trigger is not STORE_TRANSACTION. Request will not be processed");
-        //}
+        if (req.body?.trigger !== "STORE_TRANSACTION") {
+	    console.error('Not store');
+            throw new WebhookException("trigger is not STORE_TRANSACTION. Request will not be processed");
+        }
 
         if (req.body?.response !== "TRANSACTIONS") {
 	    console.error('Not transaction');
@@ -109,28 +108,24 @@ export default class App {
             throw new WebhookException("content.transactions[0].type has to be 'withdrawal'. Transaction will be ignored.");
         }
 
-        if (req.body.content.transactions[0].category_id !== null) {
-	    console.error('Category set');
-            throw new WebhookException("content.transactions[0].category_id is already set. Transaction will be ignored.");
-        }
+        // if (req.body.content.transactions[0].category_id !== null) {
+	    // console.error('Category set');
+        //     throw new WebhookException("content.transactions[0].category_id is already set. Transaction will be ignored.");
+        // }s
 
         if (!req.body.content.transactions[0].description) {
 	    console.error('Missing description');
             throw new WebhookException("Missing content.transactions[0].description");
         }
 
-        if (!req.body.content.transactions[0].destination_name) {
-	    console.error('Missing dest');
-            throw new WebhookException("Missing content.transactions[0].destination_name");
-        }
+        // if (!req.body.content.transactions[0].destination_name) {
+	    // console.error('Missing dest');
+        //     throw new WebhookException("Missing content.transactions[0].destination_name");
+        // }
 
-	console.log("No exception thrown");
-
-        const destinationName = req.body.content.transactions[0].destination_name;
         const description = req.body.content.transactions[0].description
 
         const job = this.#jobList.createJob({
-            destinationName,
             description
         });
 
@@ -147,10 +142,11 @@ export default class App {
             allLists.set('budgets', Array.from(budgets.keys()));
             allLists.set('bills', Array.from(bills.keys()));
 
-            const {prompt, category, budget, bill, response} = await this.#openAi.classify(allLists, destinationName, description)
+            const {prompt, response, destination, category, budget, bill} = await this.#openAi.classify(allLists, description)
 
             const newData = Object.assign({}, job.data);
             newData.category = category;
+            newData.destination = destination;
             newData.budget = budget;
             if (bill !== "none") {
                 newData.bill = bill;
@@ -160,12 +156,13 @@ export default class App {
 
             this.#jobList.updateJobData(job.id, newData);
 
-            if (category || budget || bill !== "none") {
+            if (destination || category || budget || bill !== "none") {
+                const destination_name = req.body.content.transactions[0].destination_name == "(no name)" ? destination : -1;
                 const category_id = categories.has(category) ? categories.get(category) : -1;
-                const budget_id = budgets.has(budget) ? budgets.get(budget) : -1;
+                const budget_id = budgets.has(budget) && category == "Food & Dining" ? budgets.get(budget) : -1;
                 const bill_id = bills.has(bill) ? bills.get(bill).id : -1;
 
-                await this.#firefly.setCategoryBudgetAndBill(req.body.content.id, req.body.content.transactions, category_id, budget_id, bill_id);
+                await this.#firefly.setDestinationCategoryBudgetAndBill(req.body.content.id, req.body.content.transactions, destination_name, category_id, budget_id, bill_id);
             }
 
             this.#jobList.setJobFinished(job.id);

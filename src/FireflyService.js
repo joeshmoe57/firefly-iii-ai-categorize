@@ -20,7 +20,6 @@ export default class FireflyService {
                 Authorization: `Bearer ${this.#PERSONAL_TOKEN}`
             }
         });
-	console.log("Cat resp: " + response);
 
         if (!response.ok) {
             console.error("Not okay: " + response);
@@ -28,7 +27,6 @@ export default class FireflyService {
         }
 
         const data = await response.json();
-	console.log("Cat data: " + data);
 
         const categories = new Map();
         data.data.forEach(category => {
@@ -40,7 +38,6 @@ export default class FireflyService {
 
 
     async getBudgets() {
-	console.log("Getting budgets");
         const response = await fetch(`${this.#BASE_URL}/api/v1/budgets`, {
             headers: {
                 Authorization: `Bearer ${this.#PERSONAL_TOKEN}`,
@@ -62,7 +59,6 @@ export default class FireflyService {
     }
 
     async getBills()    {
-	console.log("Getting bills");
         const response = await fetch(`${this.#BASE_URL}/api/v1/bills`, {
             headers: {
                 Authorization: `Bearer ${this.#PERSONAL_TOKEN}`,
@@ -89,7 +85,7 @@ export default class FireflyService {
         return bills;
     }
 
-    async setCategoryBudgetAndBill(transactionId, transactions, categoryId, budgetId, billId) {
+    async setDestinationCategoryBudgetAndBill(transactionId, transactions, destinationName, categoryId, budgetId, billId) {
         const tag = getConfigVariable("FIREFLY_TAG", "AI categorized");
 
         const body = {
@@ -108,6 +104,10 @@ export default class FireflyService {
             const object = {
                 transaction_journal_id: transaction.transaction_journal_id,
                 tags: tags,
+            }
+
+            if (destinationName !== -1) {
+                object.destination_name = destinationName;
             }
 
             if (categoryId !== -1) {
