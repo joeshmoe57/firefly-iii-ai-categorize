@@ -122,6 +122,8 @@ export default class FireflyService {
                 object.bill_id = billId;
             }
 
+            console.info("Putting: ", object);
+
             body.transactions.push(object);
         })
 

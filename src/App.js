@@ -162,7 +162,8 @@ export default class App {
             this.#jobList.updateJobData(job.id, newData);
 
             if (destination || category || budget || bill !== "none") {
-                const destination_name = req.body.content.transactions[0].destination_name == "(no name)" ? destination : -1;
+                const req_destination_name = req.body.content.transactions[0].destination_name
+                const destination_name = req_destination_name == "(no name)" || req_destination_name == "Cash account" ? destination : -1;
                 const category_id = categories.has(category) ? categories.get(category) : -1;
                 const budget_id = budgets.has(budget) && category == "Food & Dining" ? budgets.get(budget) : -1;
                 const bill_id = bills.has(bill) ? bills.get(bill).id : -1;
