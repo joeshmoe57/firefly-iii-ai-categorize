@@ -84,37 +84,42 @@ export default class App {
         // TODO: validate auth
 
         if (req.body?.trigger !== "STORE_TRANSACTION") {
-	    console.error('Not store');
+	        console.error('Not store');
             throw new WebhookException("trigger is not STORE_TRANSACTION. Request will not be processed");
         }
 
         if (req.body?.response !== "TRANSACTIONS") {
-	    console.error('Not transaction');
+	        console.error('Not transaction');
             throw new WebhookException("trigger is not TRANSACTION. Request will not be processed");
         }
 
         if (!req.body?.content?.id) {
-	    console.error('No id');
+	        console.error('No id');
             throw new WebhookException("Missing content.id");
         }
 
         if (req.body?.content?.transactions?.length === 0) {
-	    console.error('No transactions');
+	        console.error('No transactions');
             throw new WebhookException("No transactions are available in content.transactions");
         }
 
         if (req.body.content.transactions[0].type !== "withdrawal") {
-	    console.error('Not withdrawal');
+	        console.error('Not withdrawal');
             throw new WebhookException("content.transactions[0].type has to be 'withdrawal'. Transaction will be ignored.");
         }
 
-        // if (req.body.content.transactions[0].category_id !== null) {
-	    // console.error('Category set');
-        //     throw new WebhookException("content.transactions[0].category_id is already set. Transaction will be ignored.");
-        // }s
+        if (req.body.content.transactions[0].category_id !== null) {
+	        console.error('Category set');
+            throw new WebhookException("content.transactions[0].category_id is already set. Transaction will be ignored.");
+        }
+
+        if (req.body.content.transactions[0].tags?.length !== 0 && req.body.content.transactions[0].tags.includes('processed')) {
+            console.error('Transaction processed');
+            throw new WebhookException("content.transactions[0].tags contains 'processed', so has been handled by rules. Transaction will be ignored.");
+        }
 
         if (!req.body.content.transactions[0].description) {
-	    console.error('Missing description');
+	        console.error('Missing description');
             throw new WebhookException("Missing content.transactions[0].description");
         }
 
